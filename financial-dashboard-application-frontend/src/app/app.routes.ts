@@ -2,10 +2,15 @@ import { Routes } from '@angular/router';
 import { SignIn } from './pages/sign-in/sign-in';
 import { SignUp } from './pages/sign-up/sign-up';
 import { Dashboard } from './pages/dashboard/dashboard';
+import { authGuard } from './guards/auth-guard';
+
 
 export const routes: Routes = [
-    {path: '', redirectTo: '/sign-in', pathMatch: 'full'},
-    {path: 'dashboard', component: Dashboard},
+    {path: '', component: Dashboard, pathMatch: 'full',
+         canActivate:[authGuard]},
+    {path: 'dashboard', component: Dashboard, 
+        canActivate: [authGuard]
+    },
     {path: 'sign-in', component: SignIn},
     {path: 'sign-up', component: SignUp}
 ];
