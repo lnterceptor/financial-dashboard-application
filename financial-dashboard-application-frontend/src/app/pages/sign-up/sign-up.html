@@ -1,0 +1,27 @@
+<div class="sign-in">
+    <h1>Register</h1>
+<form class="login-form" [formGroup]="signUpForm" (ngSubmit)="signUp()">
+    <section id="inputs">
+        <div >
+        <div class="input-field">    
+            <label for="login-input" class="label-text">Username:</label>
+            <input type=text id="login-input" formControlName="username" name="Username" class="input-text">
+        </div>
+        <div class="input-field">
+            <label for="email-input" class="label-text">Email:</label>
+            <input type=email id="email-input" formControlName="email" name="Email" class="input-text">
+        </div>
+        <div class="input-field">
+            <label for="password-input" class="label-text">Password:</label>
+            <input type=password id="password-input" formControlName="password" name="Password" class="input-text">
+        </div>
+        <div class="input-field">
+            <label for="repeat-password-input" class="label-text">Repeat password:</label>
+            <input type=password id="repeat-password-input" formControlName="repeatPassword" name="repeatPassword" class="input-text">
+        </div>
+        </div>
+    </section>
+    <button type="submit" id="submit-button">Register</button>
+</form>
+    <div (click)="goToSignIn()">Already have account?</div>
+</div>

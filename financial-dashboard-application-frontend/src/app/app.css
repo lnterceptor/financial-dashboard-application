@@ -1,0 +1,45 @@
+.header-border {
+    outline: 3px solid blue;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 90%;
+    margin-left: 5%;
+    align-items: center;
+}
+.component-border{
+    outline: 3px solid blue;
+     border-radius: 5px;
+     width: 90%;
+     margin-left: 5%;
+}
+
+#profile-button {
+    border: 3px solid blue;
+    background: rgb(204, 237, 248);
+    color: black;
+    border-radius:  150px;
+    width: 30%;
+    height: 7vh;
+    font-size: 20px;
+    font-weight: bold;
+    margin: 2cqh;
+}
+#profile-button:hover{
+    outline: 5px solid lightblue;
+    background-color: lightblue;
+}
+
+.header-text {
+    font-size: 23px;
+    font-weight: bold;
+    margin-left: 5cqw;
+}
+body {
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2cqh;
+    
+}
