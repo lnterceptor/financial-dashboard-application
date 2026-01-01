@@ -1,13 +1,3 @@
-.header-border {
-    outline: 3px solid blue;
-    border-radius: 5px;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    width: 90%;
-    margin-left: 5%;
-    align-items: center;
-}
 .component-border{
     outline: 3px solid blue;
      border-radius: 5px;
@@ -31,11 +21,7 @@
     background-color: lightblue;
 }
 
-.header-text {
-    font-size: 23px;
-    font-weight: bold;
-    margin-left: 5cqw;
-}
+
 body {
     margin: auto;
     display: flex;

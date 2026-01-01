@@ -32,7 +32,7 @@ export class AuthService {
     );
   }
 
-  public register(credentials: {username: string; email: string; password: string}) : Observable<User>{
+  register(credentials: {username: string; email: string; password: string}) : Observable<User>{
       const mockUser: User = {
         id: Math.random(),
         username: credentials.username,

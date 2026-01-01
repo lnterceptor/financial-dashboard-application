@@ -1,9 +1,8 @@
 <html>
   <body>
-    <section class="header-border">
-      <header class="header-text">Financial Dashboard Application</header>
-      <button id="profile-button">Profil</button>
-    </section>
+    @if(currentUser | async) {
+      <app-header/>
+    }
     <main>
       <section class="component-border">
         <router-outlet></router-outlet>

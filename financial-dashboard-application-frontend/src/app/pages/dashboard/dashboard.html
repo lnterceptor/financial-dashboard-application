@@ -1,2 +1,16 @@
-<p>dashboard works!</p>
-<button (click)="logout()">Logout</button>
+<div class="dashboard">
+    
+    <div class="current-amount">Current balance: {{currentBalance | async | currency}}</div>
+    <div class="balance">
+        <div class="balance-value">Income: {{income | async | currency}}</div>
+        <div class="balance-value">Expenses: {{expenses | async| currency}}</div>
+        <div class="balance-value">Net income: {{netIncome | async| currency}}</div>
+    </div>
+    <button id="new-transaction-button" (click)="addNewTransaction()">Add new transaction</button>
+    <ul class="transaction-list">
+        <h1>Latest Transactions</h1>
+        @for(transaction of transactions | async; track transaction.id){
+            <app-transaction-list-element [amount] = "transaction.amount", [category] = "transaction.category", [id] = "transaction.id", [date_of_transaction] = "transaction.date_of_transaction", [description] = "transaction.description", (editItemEvent)="editItem($event)" />
+        }
+    </ul>
+</div>

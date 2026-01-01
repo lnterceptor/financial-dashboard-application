@@ -1,0 +1,22 @@
+.header-text {
+    font-size: 23px;
+    font-weight: bold;
+    margin: 2%;
+}
+
+.header-border {
+    border-bottom: 3px solid blue;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.second-part-of-menu{
+    display: flex;
+    flex-direction: row;
+     align-items: center;
+    display: flex;
+    
+    margin-right: 5%;
+}
