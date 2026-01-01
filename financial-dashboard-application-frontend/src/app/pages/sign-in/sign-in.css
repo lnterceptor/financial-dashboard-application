@@ -7,7 +7,10 @@
     align-items: center;
 
 }
-
+.error{
+    color:red;
+    size:8px;
+}
 #submit-button {
     border: 3px solid blue;
     background: rgb(204, 237, 248);

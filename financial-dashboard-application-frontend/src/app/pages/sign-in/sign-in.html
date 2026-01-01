@@ -5,12 +5,18 @@
         <div >
         <div class="input-field">    
             <label for="login-input" class="label-text">Username:</label>
-            <input type=text id="login-input" formControlName="username" name="Username" class="input-text">
+            <input type=text id="login-input" formControlName="username" name="Username" class="input-text"/>
         </div>
+        @if(isValid == false){
+                <span class = "error">{{displayedUsernameError}}</span>
+            }
         <div class="input-field">
             <label for="password-input" class="label-text">Password:</label>
-            <input type=password id="password-input" formControlName="password" name="Password" class="input-text">
+            <input type=password id="password-input" formControlName="password" name="Password" class="input-text"/>
         </div>
+        @if(isValid == false){
+                <span class="error">{{displayedPasswordError}}</span>
+            }
         </div>
     </section>
     <button type="submit" id="submit-button">Login</button>

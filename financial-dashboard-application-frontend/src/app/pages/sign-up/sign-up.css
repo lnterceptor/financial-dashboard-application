@@ -34,6 +34,11 @@
     
 }
 
+.error{
+    color:red;
+    size:8px;
+}
+
 .input-field{
     display: flex;
     flex-direction: row;
