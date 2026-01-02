@@ -1,9 +1,6 @@
 import { Injectable } from '@angular/core';
 import { tap, of, BehaviorSubject, Observable } from 'rxjs';
 import { User } from '../interfaces/user';
-@Injectable({
-  providedIn: 'root',
-})
 
 @Injectable({
   providedIn: 'root'

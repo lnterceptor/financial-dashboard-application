@@ -1,0 +1,44 @@
+:host-context {
+    display: block;
+    border-radius: 15px;
+    background-color: white;
+}
+
+.button-row{
+    max-width: 600px;
+    display: flex;
+    flex-direction: row;
+    align-items: space-between;
+    justify-content: space-between;
+}
+.button-accept{
+    background-color: rgb(164, 235, 253);
+    border-radius: 15px;
+    margin: 8px 8px 0px 8px;
+}
+
+.button-cancel{
+    border-radius: 15px;
+    margin: 8px 8px 8px 0;
+}
+
+.input-field{
+    margin: 10px 10px 10px 10px;
+    background-color: white;
+}
+
+.error-field{
+    margin: -6% 10px 10px 6%;
+    color: red;
+}
+.error{
+    color: red;
+}
+
+::ng-deep .mat-datepicker-content {
+  background-color: white !important;
+}
+
+::ng-deep .mat-mdc-select-panel{
+    background-color: white !important;
+}

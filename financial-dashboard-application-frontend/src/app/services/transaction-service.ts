@@ -1,14 +1,17 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { BehaviorSubject, Observable, of, tap } from 'rxjs';
 import { Category, Transaction } from '../interfaces/transaction';
 import { AuthService } from './auth-service';
 import { User } from '../interfaces/user';
+
 @Injectable({
   providedIn: 'root',
 })
 export class TransactionService {
-  authService = inject(AuthService);
-  user: User | null = null;
+  private authService = inject(AuthService);
+  private user: User | null = null;
+  private userTransactionsSubject = new BehaviorSubject<Transaction[]>([]);
+  userTransactions = this.userTransactionsSubject.asObservable();
 
   constructor(){
     this.authService.currentUser.subscribe(user =>
@@ -32,10 +35,33 @@ export class TransactionService {
     return of(currentBalance);
   }
 
-  getTransactions():Observable<Transaction[]>{
-    return of(this.getMockData());
+  getAllTransactions():Observable<Transaction[]>{
+    if(this.userTransactionsSubject.value.length == 0){
+      this.userTransactionsSubject.next(this.getMockData());
+    }
+    return of(this.userTransactionsSubject.value);
   }
 
+  getRecentTransactions(amount: number): Observable<Transaction[]>{
+    this.getAllTransactions();
+    const recentTransactions: Transaction[] = [];
+    const amountOfTransactions = amount > this.userTransactionsSubject.value.length ? this.userTransactionsSubject.value.length : amount;
+    console.log(this.userTransactionsSubject.value);
+    for(let i = 0 ; i < amountOfTransactions; i++ ){
+      recentTransactions.push(this.userTransactionsSubject.value[this.returnTransactionPositionInArray(this.userTransactionsSubject.value.length - i)]);
+      
+    }
+    return of(recentTransactions);
+  }
+
+  getSingleTransaction(transaction_id: number){
+    for(let i = 0; i < this.userTransactionsSubject.value.length; i++){
+      if(this.userTransactionsSubject.value[i].id == transaction_id){
+        return this.userTransactionsSubject.value[i];
+      }
+    }
+    return this.userTransactionsSubject.value[0]; //change later on to return some kind of error
+  }
   
 
   getMockData(){
@@ -52,6 +78,50 @@ export class TransactionService {
       {id: 2, amount: 102.43, category: Category.ENTERTAINMENT, user_id: this.user!.id , date_of_transaction:time, description:'Concert on Friday'},
       {id: 1, amount: 730.5, category: Category.INCOME, user_id: this.user!.id , date_of_transaction:time, description:'Income'}
     ];
+    transactions.sort((a, b) => a.id - b.id);
   return transactions;
   }
+
+
+  addNewTransaction(amount:number, category:Category, date:Date, description:string){
+    const transaction : Transaction = {id: (this.getMaxMockId() + 1), amount: amount, category: category, user_id: this.user!.id , date_of_transaction:date, description: description}
+    let transactions :Transaction[]= this.userTransactionsSubject.value;
+    transactions.push(transaction);
+    this.userTransactionsSubject.next(transactions);
+  }
+  
+
+  
+    editTransaction(id:number, amount:number, category:Category, date:Date, description:string){
+    const transaction = this.getSingleTransaction(id);
+
+    transaction.amount = amount;
+    transaction.category = category as Category;
+    transaction.date_of_transaction = date;
+    transaction.description = description;
+    const transactions :Transaction[]= this.userTransactionsSubject.value;
+    
+    transactions[this.returnTransactionPositionInArray(id)] = transaction;
+    this.userTransactionsSubject.next(transactions);
+  }
+
+  getMaxMockId(): number{
+    let maxId = 0;
+    for(let i = 0; i < this.userTransactionsSubject.value.length; i++){
+      if(maxId < this.userTransactionsSubject.value[i].id){
+        maxId = this.userTransactionsSubject.value[i].id
+      }
+    }
+    return maxId;
+  }
+
+  returnTransactionPositionInArray(id:number) : number{
+    for(let i = 0; i < this.userTransactionsSubject.value.length; i++){
+      if(id == this.userTransactionsSubject.value[i].id){
+        return i;
+      }
+    }
+    return -1;
+  }
+
 }

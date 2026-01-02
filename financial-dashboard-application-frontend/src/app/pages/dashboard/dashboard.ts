@@ -8,6 +8,10 @@ import { toObservable } from '@angular/core/rxjs-interop';
 import {AsyncPipe} from '@angular/common'
 import { TransactionListElement } from '../../components/transaction-list-element/transaction-list-element';
 import { CurrencyPipe } from '@angular/common';
+import { Dialog } from '@angular/cdk/dialog';
+import { AddTransaction } from '../add-transaction/add-transaction';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { take } from 'rxjs';
 
 @Component({
   selector: 'app-dashboard',
@@ -16,16 +20,17 @@ import { CurrencyPipe } from '@angular/common';
   styleUrl: './dashboard.css',
 })
 export class Dashboard {
-  authService = inject(AuthService);
-  transactionService = inject(TransactionService);
-  router = inject(Router);
+  private authService = inject(AuthService);
+  private transactionService = inject(TransactionService);
+  private router = inject(Router);
+  private dialog = inject(Dialog);
+  private amountOfShownTransactions = 5;
 
   currentBalance!: Observable<number>;
   income!: Observable<number>;
   expenses!: Observable<number>;
   netIncome!:Observable<number>;
   transactions!:Observable<Transaction[]>;
-
 
   ngOnInit(){
     this.currentBalance = this.transactionService.getCurrentBalance();
@@ -34,15 +39,32 @@ export class Dashboard {
     this.netIncome = combineLatest([this.income, this.expenses]).pipe(
       map(([income, expenses]) => income - expenses)
     )
-    this.transactions = this.transactionService.getTransactions();
+    this.transactions = this.transactionService.getRecentTransactions(this.amountOfShownTransactions);
     
   }
 
   editItem(id: number){
-    console.log(id);
+    const dataForModal = this.transactionService.getSingleTransaction(id);
+    this.dialog.open(AddTransaction, {disableClose: true, 
+      data:{id:id, amount:dataForModal.amount, category: dataForModal.category, date:dataForModal.date_of_transaction, description: dataForModal.description},
+      providers:[{provide: MAT_DIALOG_DATA, useValue: {id:id, amount:dataForModal.amount, category: dataForModal.category, date:dataForModal.date_of_transaction, description: dataForModal.description}}]
+    });
+    this.dialog.afterAllClosed.pipe(take(1)).subscribe(() => {
+      this.refreshTransactions();
+    });
   }
 
   addNewTransaction(){
-    console.log('New Transaction popup');
+    this.dialog.open(AddTransaction, {disableClose: true,
+      data:{id:null, amount:null, category: "0", date:new Date, description: ''},
+      providers:[{provide: MAT_DIALOG_DATA, useValue: {id:null, amount:null, category: "0", date:new Date, description: ''}}]
+    });
+    this.dialog.afterAllClosed.pipe(take(1)).subscribe(() => {
+      this.refreshTransactions();
+    });
+  }
+
+  refreshTransactions(){
+    this.transactions = this.transactionService.getRecentTransactions(this.amountOfShownTransactions);
   }
 }
