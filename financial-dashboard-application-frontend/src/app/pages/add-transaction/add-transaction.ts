@@ -94,8 +94,14 @@ export class AddTransaction {
   }
 
   editTransaction(){
-    //console.log( this.addTransactionForm.get('category')?.value, this.defaultOption);
     this.transactionService.editTransaction(this.id(), this.addTransactionForm.get('amount')?.value, Number(this.defaultOption) as Category, this.addTransactionForm.get('date')?.value, this.addTransactionForm.get('description')?.value);
+  }
+
+  deleteTransaction(){
+    if(this.id() != null){
+    this.transactionService.deleteTransaction(this.id());
+    this.closeModal();
+    }
   }
 
   closeModal(){

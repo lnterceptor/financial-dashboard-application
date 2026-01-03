@@ -12,7 +12,7 @@ import { CurrencyPipe } from '@angular/common';
         Cost: {{amount() | currency }} Category: {{getCategoryName()}}
       </div>
       <div class="single-row">
-        Transactions date: {{date_of_transaction()}}
+        Transactions date: {{date_of_transaction()!.toString().split('GMT')[0]}}
       </div>
        <div class="single-row">
         Description: {{description()}}

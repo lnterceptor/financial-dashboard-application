@@ -39,18 +39,16 @@ export class TransactionService {
     if(this.userTransactionsSubject.value.length == 0){
       this.userTransactionsSubject.next(this.getMockData());
     }
-    return of(this.userTransactionsSubject.value);
+    return of(this.userTransactionsSubject.value.sort((a,b) => Number(b.date_of_transaction) - Number(a.date_of_transaction)));
   }
 
   getRecentTransactions(amount: number): Observable<Transaction[]>{
     this.getAllTransactions();
-    const recentTransactions: Transaction[] = [];
+    let recentTransactions: Transaction[] = [];
     const amountOfTransactions = amount > this.userTransactionsSubject.value.length ? this.userTransactionsSubject.value.length : amount;
-    console.log(this.userTransactionsSubject.value);
-    for(let i = 0 ; i < amountOfTransactions; i++ ){
-      recentTransactions.push(this.userTransactionsSubject.value[this.returnTransactionPositionInArray(this.userTransactionsSubject.value.length - i)]);
-      
-    }
+    
+    recentTransactions = this.userTransactionsSubject.value.sort((a,b)=>Number(b.date_of_transaction) - Number(a.date_of_transaction));
+    recentTransactions = recentTransactions.slice(0, amount);
     return of(recentTransactions);
   }
 
@@ -65,20 +63,19 @@ export class TransactionService {
   
 
   getMockData(){
-    const time = new Date();
     const transactions: Transaction[] = [
-      {id: 10, amount: 70.00, category: Category.ENTERTAINMENT, user_id: this.user!.id , date_of_transaction:time, description:'Movie'},
-      {id: 9, amount: 69.99, category: Category.OIL, user_id: this.user!.id , date_of_transaction:time, description:'Gasoline for next week'},
-      {id: 8, amount: 100.00, category: Category.GROCERIES, user_id: this.user!.id , date_of_transaction:time, description:''},
-      {id: 7, amount: 220.11, category: Category.FOOD, user_id: this.user!.id , date_of_transaction:time, description:'Groceries'},
-      {id: 6, amount: 120.19, category: Category.OTHERS, user_id: this.user!.id , date_of_transaction:time, description:'Movie'},
-      {id: 5, amount: 120.30, category: Category.OTHERS, user_id: this.user!.id , date_of_transaction:time, description:'Event on Monday'},
-      {id: 4, amount: 120.35, category: Category.OTHERS, user_id: this.user!.id , date_of_transaction:time, description:'Last Friday'},
-      {id: 3, amount: 120.00, category: Category.INCOME, user_id: this.user!.id , date_of_transaction:time, description:'From Michael'},
-      {id: 2, amount: 102.43, category: Category.ENTERTAINMENT, user_id: this.user!.id , date_of_transaction:time, description:'Concert on Friday'},
-      {id: 1, amount: 730.5, category: Category.INCOME, user_id: this.user!.id , date_of_transaction:time, description:'Income'}
+      {id: 100, amount: 70.00, category: Category.ENTERTAINMENT, user_id: this.user!.id , date_of_transaction:new Date(2025, 3,10), description:'Movie'},
+      {id: 91, amount: 69.99, category: Category.OIL, user_id: this.user!.id , date_of_transaction:new Date(2025, 1,1), description:'Gasoline for next week'},
+      {id: 81, amount: 100.00, category: Category.GROCERIES, user_id: this.user!.id , date_of_transaction:new Date(2025, 2,22), description:''},
+      {id: 75, amount: 220.11, category: Category.FOOD, user_id: this.user!.id , date_of_transaction:new Date(2025, 5,17), description:'Groceries'},
+      {id: 61, amount: 120.19, category: Category.OTHERS, user_id: this.user!.id , date_of_transaction:new Date(2025, 4,16), description:'Movie'},
+      {id: 53, amount: 120.30, category: Category.OTHERS, user_id: this.user!.id , date_of_transaction:new Date(2026, 0,1), description:'Event on Monday'},
+      {id: 42, amount: 120.35, category: Category.OTHERS, user_id: this.user!.id , date_of_transaction:new Date(2025, 8,7), description:'Last Friday'},
+      {id: 30, amount: 120.00, category: Category.INCOME, user_id: this.user!.id , date_of_transaction:new Date(2025, 7,10), description:'From Michael'},
+      {id: 2, amount: 102.43, category: Category.ENTERTAINMENT, user_id: this.user!.id , date_of_transaction:new Date(2026, 0,2), description:'Concert on Friday'},
+      {id: 1, amount: 730.5, category: Category.INCOME, user_id: this.user!.id , date_of_transaction:new Date(2025, 5,11), description:'Income'}
     ];
-    transactions.sort((a, b) => a.id - b.id);
+    transactions.sort((a, b) => b.id - a.id);
   return transactions;
   }
 
@@ -123,5 +120,17 @@ export class TransactionService {
     }
     return -1;
   }
+  filterByPhrase(filterByPhrase: string) : Observable<Transaction[]>{
+    let transactions = this.userTransactionsSubject.value.filter(transaction => transaction.amount.toString().includes(filterByPhrase) || 
+    transaction.description.toUpperCase().includes(filterByPhrase.toUpperCase()) || Object.values(Category[transaction.category]).join('').includes(filterByPhrase.toUpperCase())
+    || transaction.date_of_transaction.toString().toUpperCase().includes(filterByPhrase.toUpperCase())
+  );
+    return of(transactions);
+  }
 
+  deleteTransaction(id: number){
+    let transactions = this.userTransactionsSubject.value;
+    transactions.splice(transactions.indexOf(this.getSingleTransaction(id)),1);
+    this.userTransactionsSubject.next(transactions);
+  }
 }

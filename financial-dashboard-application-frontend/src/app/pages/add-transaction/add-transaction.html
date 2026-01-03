@@ -34,8 +34,14 @@
         </div>
     <div class="button-row">
     <button matButton="outlined" class="button-accept"  type="submit">Confirm</button>
-    <button matButton="outlined" class="button-cancel" (click)="closeModal()">cancel</button>
+    <div button-row-second-part>
+    @if(this.id() != null){
+        <button matButton="outlined" class="button-delete" (click)="deleteTransaction()">delete</button>
+    }
+        <button matButton="outlined" class="button-cancel" (click)="closeModal()">cancel</button>
+        </div>    
     </div>
+
 </form>
     
 </div>

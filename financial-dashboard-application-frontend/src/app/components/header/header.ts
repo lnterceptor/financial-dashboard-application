@@ -16,5 +16,11 @@ export class Header {
     this.authService.logout();
     this.router.navigateByUrl('sign-in');
   }
+  transactionList() : void {
+    this.router.navigateByUrl('transaction-list');
+  }
+  dashboard(): void{
+    this.router.navigateByUrl('dashboard');
+  }
   
 }

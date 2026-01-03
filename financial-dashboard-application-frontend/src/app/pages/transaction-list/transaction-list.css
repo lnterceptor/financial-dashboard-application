@@ -1,0 +1,22 @@
+.search-border{
+    width: 90%;
+    margin-left: 5%;
+    margin-top: 2cqh;
+    border-radius: 15px;
+}
+
+#new-transaction-button{
+    background-color: rgb(4, 173, 117);
+    color: black;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 2cqh;
+    margin-bottom: 2cqh;
+    margin-left : 10%;
+    width: 80%;
+    height: 10cqh;
+    font-size: 40px;
+    border-radius: 15px;
+}

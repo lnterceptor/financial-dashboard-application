@@ -11,10 +11,24 @@
     align-items: space-between;
     justify-content: space-between;
 }
+
+.button-row-second-part{
+    display: flex;
+    flex-direction: row;
+    align-items:flex-start;
+    justify-content: flex-start;
+}
+
 .button-accept{
     background-color: rgb(164, 235, 253);
     border-radius: 15px;
     margin: 8px 8px 0px 8px;
+}
+
+.button-delete{
+    background-color: rgb(248, 51, 25);
+    border-radius: 15px;
+    margin: 8px 8px 8px 0;
 }
 
 .button-cancel{

@@ -1,0 +1,14 @@
+<div>
+    <mat-form-field class="search-border">
+        <mat-label>Search</mat-label>
+        <input matInput placeholder="Search by phrase" [(ngModel)]="inputValue" (blur)="filterTransactions(inputValue)" (keydown.enter)="filterTransactions(inputValue)"/>
+    </mat-form-field>
+    <div>
+    <button id="new-transaction-button" (click)="addNewTransaction()">Add new transaction</button>
+    </div>
+    <ul class="transaction-list">
+        @for (transaction of transactions | async; track transaction.id) {
+            <app-transaction-list-element [amount] = "transaction.amount", [category] = "transaction.category", [id] = "transaction.id", [date_of_transaction] = "transaction.date_of_transaction", [description] = "transaction.description", (editItemEvent)="editTransaction($event)" />
+        }
+    </ul>
+</div>
