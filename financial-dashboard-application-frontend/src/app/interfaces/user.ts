@@ -2,5 +2,6 @@ export interface User {
     id: number,
     username: string,
     email: string,
-    token: string
+    token: string,
+    currency: string
 }

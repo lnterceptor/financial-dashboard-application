@@ -22,7 +22,8 @@ export class AuthService {
       id: 1,
       username: 'MockUser',
       email: 'MockUser@mockMail.com',
-      token: 'Mock-jwt-token'
+      token: 'Mock-jwt-token',
+      currency: 'USD'
     };
     return of(mockUser).pipe(
       tap(user => this.setUser(user))
@@ -34,7 +35,8 @@ export class AuthService {
         id: Math.random(),
         username: credentials.username,
         email: credentials.email,
-        token: 'Mock-jwt-token'
+        token: 'Mock-jwt-token',
+        currency: 'USD'
       }
       return of(mockUser).pipe(
         tap(user => this.setUser(user))
@@ -53,6 +55,20 @@ export class AuthService {
 
   isAuthenticated(): boolean{
     return this.currentUserSubject.value == null ? false : true;
+  }
+
+  changeUserData(username: string, currency: string): Observable<boolean>{
+    //todo: verify after backend if username not taken
+    let tempUser = this.currentUserSubject.value;
+    tempUser!.currency = currency;
+    tempUser!.username = username;
+    this.currentUserSubject.next(tempUser);
+    return of(true);
+  }
+
+  changePassword(password: string ): Observable<boolean>{
+    //todo: implement after connecting to backend
+    return of(true);
   }
 
 }

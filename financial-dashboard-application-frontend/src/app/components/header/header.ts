@@ -22,5 +22,7 @@ export class Header {
   dashboard(): void{
     this.router.navigateByUrl('dashboard');
   }
-  
+  profile() :void{
+    this.router.navigateByUrl('profile');
+  }
 }

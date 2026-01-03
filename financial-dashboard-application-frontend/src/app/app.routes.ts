@@ -4,6 +4,7 @@ import { SignUp } from './pages/sign-up/sign-up';
 import { Dashboard } from './pages/dashboard/dashboard';
 import { authGuard } from './guards/auth-guard';
 import { TransactionList } from './pages/transaction-list/transaction-list';
+import { Profile } from './pages/profile/profile';
 
 
 export const routes: Routes = [
@@ -15,6 +16,9 @@ export const routes: Routes = [
     {path: 'sign-in', component: SignIn},
     {path: 'sign-up', component: SignUp},
     {path: 'transaction-list', component: TransactionList,
+        canActivate: [authGuard]
+    },
+    {path: 'profile', component: Profile,
         canActivate: [authGuard]
     }
 ];

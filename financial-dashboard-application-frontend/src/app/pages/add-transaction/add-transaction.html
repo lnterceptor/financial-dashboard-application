@@ -1,5 +1,5 @@
 <div class="add-transaction">
-<form class="login-form" [formGroup]="addTransactionForm" (ngSubmit)="sendTransactionToBackend()">
+<form [formGroup]="addTransactionForm" (ngSubmit)="sendTransactionToBackend()">
         <mat-form-field class="input-field">    
             <mat-label>Amount:</mat-label>
             <input matInput type=text id="amount-input" formControlName="amount"/>

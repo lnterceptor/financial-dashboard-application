@@ -1,0 +1,30 @@
+
+<div class = "upper-space"></div>
+<form [formGroup]="profileForm" class="input-form"(ngSubmit)="changeData()">
+    <div class="inputs">
+        <div class="first-row">
+            <mat-form-field>
+                <mat-label class="input-field">Username</mat-label>
+                <input matInput type=text formControlName="username"/>
+                @if (!isValid) {
+                    <mat-error class="error">{{errorMessage}}</mat-error>
+                }
+            </mat-form-field>
+            <mat-form-field>
+            <mat-label class="input-field">Choose a currency:</mat-label>
+            <mat-select [(value)]="defaultOption">
+                @for (currency of currencies; track $index) {
+                    <mat-option value={{currency}}>{{currency}}</mat-option>
+            }
+                </mat-select>
+            </mat-form-field>
+        </div>
+        <mat-form-field class="input-field">
+                <mat-label>Email</mat-label>
+                <input matInput readonly type=text formControlName="email"/>
+        </mat-form-field>
+    </div>
+    <button matButton="outlined" class="confirm-changes" type="submit">Confirm changes</button>
+</form>
+<div class = "border-top"></div>
+<button matButton="outlined" class="change-password" (click) = "changePassword()">Change password</button>

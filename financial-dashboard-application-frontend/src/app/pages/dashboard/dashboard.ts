@@ -12,6 +12,7 @@ import { Dialog } from '@angular/cdk/dialog';
 import { AddTransaction } from '../add-transaction/add-transaction';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { take } from 'rxjs';
+import { User } from '../../interfaces/user';
 
 @Component({
   selector: 'app-dashboard',
@@ -22,15 +23,21 @@ import { take } from 'rxjs';
 export class Dashboard {
   private authService = inject(AuthService);
   private transactionService = inject(TransactionService);
-  private router = inject(Router);
   private dialog = inject(Dialog);
   private amountOfShownTransactions = 5;
+  user : User | null = null;
 
   currentBalance!: Observable<number>;
   income!: Observable<number>;
   expenses!: Observable<number>;
   netIncome!:Observable<number>;
   transactions!:Observable<Transaction[]>;
+
+  constructor(){
+    this.authService.currentUser.subscribe(
+      user => this.user = user
+    )
+  }
 
   ngOnInit(){
     this.currentBalance = this.transactionService.getCurrentBalance();

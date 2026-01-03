@@ -1,10 +1,10 @@
 <div class="dashboard">
     
-    <div class="current-amount">Current balance: {{currentBalance | async | currency}}</div>
+    <div class="current-amount">Current balance: {{currentBalance | async | currency:user!.currency}}</div>
     <div class="balance">
-        <div class="balance-value">Income: {{income | async | currency}}</div>
-        <div class="balance-value">Expenses: {{expenses | async| currency}}</div>
-        <div class="balance-value">Net income: {{netIncome | async| currency}}</div>
+        <div class="balance-value">Income: {{income | async | currency:user!.currency}}</div>
+        <div class="balance-value">Expenses: {{expenses | async| currency:user!.currency}}</div>
+        <div class="balance-value">Net income: {{netIncome | async| currency:user!.currency}}</div>
     </div>
     <button id="new-transaction-button" (click)="addNewTransaction()">Add new transaction</button>
     <ul class="transaction-list">

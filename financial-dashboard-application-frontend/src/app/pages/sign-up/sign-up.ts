@@ -65,7 +65,7 @@ export class SignUp {
         return 'This field is required';
       }
       else if(contain_errors.errors['minlength']){
-        if(input_to_check = 'username'){
+        if(input_to_check == 'username'){
           return 'This field must contain at least ' + this.minLengthUsername + ' characters.';
         }
         return 'This field must contain at least ' + this.minLengthPassword + ' characters.';

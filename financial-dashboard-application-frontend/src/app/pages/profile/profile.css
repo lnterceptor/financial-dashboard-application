@@ -1,0 +1,51 @@
+::ng-deep .mat-mdc-select-panel{
+    background-color: white !important;
+}
+
+
+.input-form{
+    width: 90%;
+    margin: 0 0 2% 5%;
+    
+}
+.inputs{
+    margin-left: 5%;
+    margin-right: 5%;
+}
+.first-row{
+    display: flex;
+    justify-content:space-between;
+    margin-top: 3cqh;
+    
+}
+
+.confirm-changes{
+    min-width: 100%;
+    background-color: rgb(86, 211, 128);
+    border-radius: 15px;
+    margin-top: 10px;
+    height: 6cqh;
+}
+
+.change-password{
+    background-color: rgb(185, 206, 211);
+    border-radius: 15px;
+    width: 25%;
+    margin-left: 5%;
+    margin-bottom: 3%;
+    height: 6cqh;
+}
+
+.border-top{
+    width: 90%;
+    margin-left: 5%;
+    margin-bottom: 4cqh;
+    border-top: 3px solid black;
+
+}
+.upper-space{
+    border-top: 3px solid transparent;
+}
+.error{
+    color: red;
+}

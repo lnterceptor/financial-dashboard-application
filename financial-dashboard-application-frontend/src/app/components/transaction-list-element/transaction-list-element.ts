@@ -1,7 +1,8 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, inject } from '@angular/core';
 import { Category } from '../../interfaces/transaction';
 import { CurrencyPipe } from '@angular/common';
-
+import { User } from '../../interfaces/user';
+import { AuthService } from '../../services/auth-service';
 @Component({
   selector: 'app-transaction-list-element',
   imports: [CurrencyPipe],
@@ -9,7 +10,7 @@ import { CurrencyPipe } from '@angular/common';
     <div class="list-element">
     <div class="list-row">
       <div class="single-row">
-        Cost: {{amount() | currency }} Category: {{getCategoryName()}}
+        Cost: {{amount() | currency:user!.currency }} Category: {{getCategoryName()}}
       </div>
       <div class="single-row">
         Transactions date: {{date_of_transaction()!.toString().split('GMT')[0]}}
@@ -55,7 +56,14 @@ export class TransactionListElement {
     readonly description = input<string>();
 
     readonly editItemEvent = output<number>();
-    
+    authService = inject(AuthService);
+    user : User | null = null;
+
+
+    constructor(){
+      this.authService.currentUser.subscribe(user =>this.user = user);
+    }
+
     editItem(){
       this.editItemEvent.emit(this.returnItem());
     }
