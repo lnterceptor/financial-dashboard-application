@@ -25,4 +25,7 @@ export class Header {
   profile() :void{
     this.router.navigateByUrl('profile');
   }
+  analytics(): void{
+    this.router.navigateByUrl('analytics');
+  }
 }

@@ -4,6 +4,11 @@ import { Category, Transaction } from '../interfaces/transaction';
 import { AuthService } from './auth-service';
 import { User } from '../interfaces/user';
 
+export interface DataPoint{
+  x: string,
+  y: number
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -27,11 +32,23 @@ export class TransactionService {
   }
 
   getIncome():Observable<number>{
-    const currentBalance = 4321.00;
+    const data = this.getIncomeForCharts();
+    let currentBalance = 0;
+    data.subscribe(data => {
+      for(let i = 0; i < data.length; i++){
+        currentBalance += data[i].y;
+      }
+    });
     return of(currentBalance);
   }
   getExpenses():Observable<number>{
-    const currentBalance = 1234.45;
+    const data = this.getExpensesForCharts();
+    let currentBalance = 0;
+    data.subscribe(data => {
+      for(let i = 0; i < data.length; i++){
+        currentBalance += data[i].y;
+      }
+    });    
     return of(currentBalance);
   }
 
@@ -132,5 +149,82 @@ export class TransactionService {
     let transactions = this.userTransactionsSubject.value;
     transactions.splice(transactions.indexOf(this.getSingleTransaction(id)),1);
     this.userTransactionsSubject.next(transactions);
+  }
+  
+
+  getLastYearLabels(){
+    const now = new Date();
+    const months = [];
+    months.push(new Date(now.getFullYear(), now.getMonth()).toLocaleDateString('en-GB'));
+    for(let i = 11; i > 0; i--){
+      const date = new Date( now.getMonth() - i > 0 ? now.getFullYear(): now.getFullYear() -1, now.getMonth() - i > 0 ? now.getMonth() - i : i );
+      months.push(date.toLocaleDateString('en-GB'));
+    }
+    
+    months.sort((a,b)=> Number(new Date(a)) - Number(new Date(b)))
+    for(let i = 0; i < months.length; i++){
+      months[i] = months[i].slice(3);
+    }
+    return months
+  }
+
+  transformDataOverTimeForCharts(data: Transaction[]) : DataPoint[] {
+    const labels = this.getLastYearLabels();
+    const dataPoints: DataPoint[] = [];
+    
+    for(let i = 0; i < 12; i++){
+      dataPoints.push({x : labels[i],y:0});
+    }
+    for(let i = 0; i < data.length; i++){
+      const dataIdx = dataPoints.findIndex(value => value.x === data[i].date_of_transaction.toLocaleDateString('en-GB').slice(3));
+
+      if(dataIdx != -1){
+        dataPoints[dataIdx].y += data[i].amount;
+      }
+    }
+    return dataPoints;
+  }
+
+  getExpensesForCharts() : Observable<DataPoint[]>{
+    
+    if(this.userTransactionsSubject.value.length == 0){
+      this.userTransactionsSubject.next(this.getMockData());
+    }
+    
+    return of(this.transformDataOverTimeForCharts(this.userTransactionsSubject.value.filter(transaction => transaction.category !== Category.INCOME)));
+  }
+
+  getIncomeForCharts() : Observable<DataPoint[]>{
+    if(this.userTransactionsSubject.value.length == 0){
+      this.userTransactionsSubject.next(this.getMockData());
+    }
+    return of(this.transformDataOverTimeForCharts(this.userTransactionsSubject.value.filter(transaction => transaction.category === Category.INCOME)));
+  }
+
+
+  getExpensesToPieChart(): Observable<DataPoint[]>{
+    const data :DataPoint[] = [];
+    for(let i = 0; i < Object.values(Category).filter(key => isNaN(Number(key))).length; i++){
+      if(Category[i].toString() !== 'INCOME'){
+        data.push(this.getExpensesByCategory(i));
+      }
+    }
+    return of(data);
+  }
+
+  getExpensesByCategory(category: Category): DataPoint{
+    if(this.userTransactionsSubject.value.length == 0){
+      this.userTransactionsSubject.next(this.getMockData());
+    }
+    let data = this.userTransactionsSubject.value.filter(transaction => transaction.category === category);
+    let amount = 0;
+    let dataToReturn : DataPoint = {x:'', y:0};
+
+    for(let i = 0; i < data.length; i++){
+      amount += data[i].amount;
+    }
+    dataToReturn.x = Object.values(Category[category]).join('');
+    dataToReturn.y = amount;
+    return dataToReturn;
   }
 }

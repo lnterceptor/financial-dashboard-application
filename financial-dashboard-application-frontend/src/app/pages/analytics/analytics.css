@@ -1,0 +1,48 @@
+.charts-grid{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding: 1rem;
+    gap: 2rem;
+}
+.pie-chart{
+    margin-left: 25%;
+    width: 50%;
+}
+
+.lower-space{
+    margin-top: 3cqh;
+    border-top: 3px solid transparent;
+}
+
+.balance{
+    margin-top: 3cqh;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 2cqw;
+    
+}
+.balance-value{
+    background-color: rgb(69, 157, 234);
+    height: 10cqh;
+    width: 20cqw;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    border-radius: 15px;
+    font-size: 25px;
+}
+.title{
+    font-weight: bold;
+    font-size: 35px;
+    background-color: rgb(4, 173, 117);
+    height: 10cqh;
+    width: 80%;
+    margin-top: 3cqh;
+    margin-left: 10%;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    border-radius: 15px;
+}

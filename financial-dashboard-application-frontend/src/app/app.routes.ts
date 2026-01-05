@@ -5,6 +5,7 @@ import { Dashboard } from './pages/dashboard/dashboard';
 import { authGuard } from './guards/auth-guard';
 import { TransactionList } from './pages/transaction-list/transaction-list';
 import { Profile } from './pages/profile/profile';
+import { Analytics } from './pages/analytics/analytics';
 
 
 export const routes: Routes = [
@@ -19,6 +20,9 @@ export const routes: Routes = [
         canActivate: [authGuard]
     },
     {path: 'profile', component: Profile,
+        canActivate: [authGuard]
+    },
+    {path: 'analytics', component: Analytics,
         canActivate: [authGuard]
     }
 ];

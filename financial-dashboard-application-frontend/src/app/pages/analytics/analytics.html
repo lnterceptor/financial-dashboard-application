@@ -1,0 +1,41 @@
+<div class = "lower-space"></div>
+
+<div class="title">Annual analytics summary</div>
+<div class="balance">
+        <div class="balance-value">Income: {{income | async | currency:user!.currency}}</div>
+        <div class="balance-value">Expenses: {{expenses | async| currency:user!.currency}}</div>
+        <div class="balance-value">Net income: {{netIncome | async| currency:user!.currency}}</div>
+    </div>
+
+<div class="charts-grid">
+<mat-card class="charts-container" appearance="outlined">
+    <canvas 
+        baseChart
+        [data]="incomeChart.data"
+        [options]="incomeChart.options" 
+        type="line">
+      </canvas>
+</mat-card>
+
+<mat-card class="charts-container" appearance="outlined">
+    <canvas 
+        baseChart
+        [data]="netIncomeChart.data"
+        [options]="netIncomeChart.options"
+        type="line">
+      </canvas>
+</mat-card>
+
+
+</div>
+<div class="pie-chart">
+<mat-card class="charts-container" appearance="outlined">
+    <canvas 
+        baseChart
+        [data]="pieChartData.data"
+        [options]="pieChartData.options"
+        type="pie">
+      </canvas>
+</mat-card>
+</div>
+<div class = "lower-space"></div>
