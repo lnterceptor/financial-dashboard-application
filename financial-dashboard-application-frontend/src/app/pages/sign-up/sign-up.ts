@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -34,17 +34,23 @@ export class SignUp {
   }
 
   signUp(){
+    this.clearErrors();
     if(this.signUpForm.valid){
       if(this.signUpForm.get('password')!.value != this.signUpForm.get('repeatPassword')!.value){
-        this.clearErrors();
         this.displayedReapeadPasswordError = 'Password and confirmation do not match.';
         return;
       }
       this.isValid = true;
-    this.authService.register({username: this.signUpForm.controls.username.value!, email:this.signUpForm.controls.email.value!, password:this.signUpForm.controls.password.value!})
-      .subscribe({next: (user) => 
-      this.router.navigateByUrl('/dashboard')
-      });
+      this.authService.register({username: this.signUpForm.controls.username.value!, email:this.signUpForm.controls.email.value!, password:this.signUpForm.controls.password.value!, repeatPassword:this.signUpForm.controls.repeatPassword.value!})
+      .subscribe({
+        next: () => this.router.navigateByUrl('/dashboard'), 
+        error: (error: HttpErrorResponse) => {
+          this.isValid = false;
+          this.displayedReapeadPasswordError = error.error?.error;
+        }
+      }
+      
+    );
     }
     else{
       this.isValid = false;

@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -18,28 +18,42 @@ export class SignIn {
   isValid = true;
   displayedUsernameError = '';
   displayedPasswordError = '';
-  minLength = 4;
+  minLength = 6;
+  minLengthPassword = 8;
 
   signInForm = new FormGroup({
     username: new FormControl('', [Validators.required, Validators.minLength(this.minLength)]),
-    password: new FormControl('', [Validators.required, Validators.minLength(this.minLength)])
+    password: new FormControl('', [Validators.required, Validators.minLength(this.minLengthPassword)])
   });
 
   goToRegister(){
     this.router.navigateByUrl('/sign-up');
   }
   signIn(){
+    this.clearErrors();
     if(this.signInForm.valid){
       this.isValid = true;
-    this.authService.login({username: this.signInForm.controls.username.value!, password: this.signInForm.controls.password.value!})
+    const auth = this.authService.login({username: this.signInForm.controls.username.value!, password: this.signInForm.controls.password.value!})
       .subscribe({
-        next: (user) => this.router.navigateByUrl('/dashboard')
-      });
+        next: () => {this.router.navigateByUrl('/dashboard')}
+        , error:(error: HttpErrorResponse)=>{
+          this.isValid = false;
+          this.displayedPasswordError = error.error?.error;
+        }
+        
+      },
+      
+    );
+      
     }
     else{
       this.isValid = false;
       this.checkErrors();
     }
+  }
+  clearErrors(){
+    this.displayedUsernameError = '';
+    this.displayedPasswordError = '';
   }
   checkErrors(){
     this.displayedUsernameError = this.containErrors('username');
@@ -52,7 +66,7 @@ export class SignIn {
         return 'This field is required';
       }
       else if(contain_errors.errors['minlength']){
-        return 'This field must contain at least ' + this.minLength + ' characters.';
+        return input_to_check === 'username' ? 'This field must contain at least ' + this.minLength + ' characters.': 'This field must contain at least ' + this.minLengthPassword + ' characters.';
       }
     }
     return '';

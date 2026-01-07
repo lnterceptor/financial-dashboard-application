@@ -1,3 +1,4 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { tap, of, BehaviorSubject, Observable } from 'rxjs';
 import { User } from '../interfaces/user';
@@ -7,40 +8,44 @@ import { User } from '../interfaces/user';
 })
 
 export class AuthService {
+  private apiUrl = 'http://localhost:8080/auth';
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser = this.currentUserSubject.asObservable();
 
-  constructor(){
+  constructor(private http:HttpClient){
     const stored = localStorage.getItem('currentUser');
     if(stored){
       this.currentUserSubject.next(JSON.parse(stored));    
     }
   }
   
-  login(credentials: {username: string; password: string}) : Observable<User>{
-    const mockUser: User = {
-      id: 1,
-      username: 'MockUser',
-      email: 'MockUser@mockMail.com',
-      token: 'Mock-jwt-token',
-      currency: 'USD'
+  login(credentials: {username: string; password: string}) {
+    const user = {
+      username: credentials.username,
+      email: credentials.username,
+      password: credentials.password,
+      
     };
-    return of(mockUser).pipe(
-      tap(user => this.setUser(user))
-    );
+    
+    return this.http.post<User>(this.apiUrl + '/login', user).pipe(
+      tap(user =>{ 
+        this.setUser(user);
+      }));    
   }
 
-  register(credentials: {username: string; email: string; password: string}) : Observable<User>{
-      const mockUser: User = {
-        id: Math.random(),
-        username: credentials.username,
+  register(credentials: {username: string; email: string; password: string, repeatPassword: string}) : Observable<User>{
+      const user = {
         email: credentials.email,
-        token: 'Mock-jwt-token',
-        currency: 'USD'
+        username: credentials.username,
+        password: credentials.password,
+        repeatPassword: credentials.repeatPassword
       }
-      return of(mockUser).pipe(
-        tap(user => this.setUser(user))
-      );
+ 
+      return this.http.post<User>(this.apiUrl + '/register', user).pipe(
+      tap(
+        user =>{ 
+        this.setUser(user);
+      }));
   }
 
   logout(): void{
