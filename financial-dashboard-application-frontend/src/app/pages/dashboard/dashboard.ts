@@ -3,7 +3,7 @@ import { AuthService } from '../../services/auth-service';
 import { Router } from '@angular/router';
 import { TransactionService } from '../../services/transaction-service';
 import { combineLatest, Observable, map } from 'rxjs';
-import { Transaction } from '../../interfaces/transaction';
+import { Category, Transaction } from '../../interfaces/transaction';
 import { toObservable } from '@angular/core/rxjs-interop';
 import {AsyncPipe} from '@angular/common'
 import { TransactionListElement } from '../../components/transaction-list-element/transaction-list-element';
@@ -27,7 +27,6 @@ export class Dashboard {
   private amountOfShownTransactions = 5;
   user : User | null = null;
 
-  currentBalance!: Observable<number>;
   income!: Observable<number>;
   expenses!: Observable<number>;
   netIncome!:Observable<number>;
@@ -40,7 +39,6 @@ export class Dashboard {
   }
 
   ngOnInit(){
-    this.currentBalance = this.transactionService.getCurrentBalance();
     this.income = this.transactionService.getIncome();
     this.expenses = this.transactionService.getExpenses();
     this.netIncome = combineLatest([this.income, this.expenses]).pipe(
@@ -63,8 +61,8 @@ export class Dashboard {
 
   addNewTransaction(){
     this.dialog.open(AddTransaction, {disableClose: true,
-      data:{id:null, amount:null, category: "0", date:new Date, description: ''},
-      providers:[{provide: MAT_DIALOG_DATA, useValue: {id:null, amount:null, category: "0", date:new Date, description: ''}}]
+      data:{id:null, amount:null, category: Object.values(Category[Category.INCOME]).join(''), date:new Date, description: ''},
+      providers:[{provide: MAT_DIALOG_DATA, useValue: {id:null, amount:null, category: Object.values(Category[Category.INCOME]).join(''), date:new Date, description: ''}}]
     });
     this.dialog.afterAllClosed.pipe(take(1)).subscribe(() => {
       this.refreshTransactions();
@@ -73,5 +71,10 @@ export class Dashboard {
 
   refreshTransactions(){
     this.transactions = this.transactionService.getRecentTransactions(this.amountOfShownTransactions);
+    this.income = this.transactionService.getIncome();
+    this.expenses = this.transactionService.getExpenses();
+    this.netIncome = combineLatest([this.income, this.expenses]).pipe(
+      map(([income, expenses]) => income - expenses)
+    )
   }
 }

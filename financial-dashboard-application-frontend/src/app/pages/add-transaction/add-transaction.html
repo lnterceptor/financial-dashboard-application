@@ -16,9 +16,12 @@
                 }
             </mat-select>
         </mat-form-field>
+        @if(isValid == false){
+                <mat-error class="error-field">{{displayedCategoryError}}</mat-error>
+            }
         <div>
         <mat-form-field class="input-field">
-        <input matInput [matDatepicker]="picker" readonly placeholder="Choose a date" [value]="date()" class="background">
+        <input matInput [matDatepicker]="picker" readonly placeholder="Choose a date"  formControlName="date"  class="background">
             <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
             <mat-datepicker #picker ></mat-datepicker>
         </mat-form-field>

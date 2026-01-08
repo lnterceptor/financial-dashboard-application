@@ -13,7 +13,7 @@ import { AuthService } from '../../services/auth-service';
         Cost: {{amount() | currency:user!.currency }} Category: {{getCategoryName()}}
       </div>
       <div class="single-row">
-        Transactions date: {{date_of_transaction()!.toString().split('GMT')[0]}}
+        Transactions date: {{date_of_transaction()!.toString().split('T')[0]}}
       </div>
        <div class="single-row">
         Description: {{description()}}
@@ -71,8 +71,8 @@ export class TransactionListElement {
     returnItem():number{
         return this.id() == null ? 0 : this.id()!;
     }
-    getCategoryName(): string{
-      return Category[this.category() == null ? 0 : this.category()!];
+    getCategoryName(): Category{
+      return this.category()!;
     }
 
 }

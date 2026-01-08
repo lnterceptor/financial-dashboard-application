@@ -18,13 +18,20 @@ import { CurrencyPipe } from '@angular/common';
 })
 export class Analytics {
 
+  backgroundColours = [
+    '#df83ebff', '#004a75ff', '#AACCBB', '#ab3a78ff', '#00AA00', '#AACC00'
+    ,'#00CCFF', '#C0F000', '#C0FF', '#FABB00', '#FAB000', '#4170a7ff'
+  ]
+
   incomeChart = {
     type: 'line',
     data:{
-      datasets: [{
+      datasets: [
+        {data: [{x: '2016-12', y: 20}], label: 'Income'},
+        {
          data: [{x: '2016-12', y: 20}], label: 'Expenses'
       },
-        {data: [{x: '2016-12', y: 20}], label: 'Income'}
+        
     ]
     
     },
@@ -67,7 +74,8 @@ export class Analytics {
     data: {
     labels: ['Pie'],
     datasets: [{
-      data: [100]
+      data: [100],
+      backgroundColor: ['']
     }]
   },
   options: {
@@ -99,8 +107,10 @@ export class Analytics {
   }
 
   ngOnInit(){
-    this.getExpenses = this.transactionService.getExpensesForCharts();
+    
     this.getIncome = this.transactionService.getIncomeForCharts();
+    this.getExpenses = this.transactionService.getExpensesForCharts();
+    
     this.setCharts();
     
       this.income = this.transactionService.getIncome();
@@ -118,14 +128,20 @@ export class Analytics {
     
   }
   setPieChart(){
-    this.netIncomeChart.data.datasets[0].data.pop();
-    this.pieChartData.data.labels.pop();
+    
+
     this.transactionService.getExpensesToPieChart().subscribe(
       value => {
+        this.pieChartData.data.datasets[0].data = [];
+        this.pieChartData.data.datasets[0].backgroundColor = [];
+        this.pieChartData.data.labels = [];
+
         for(let i = 0; i < value.length; i++){
         this.pieChartData.data.labels.push(value[i].x)
         this.pieChartData.data.datasets[0].data.push(value[i].y);
+        this.pieChartData.data.datasets[0].backgroundColor.push(this.backgroundColours[i %this.backgroundColours.length]);
         }
+        this.pieChartData = { ...this.pieChartData };
       }
 
     );
@@ -139,30 +155,32 @@ export class Analytics {
 
     this.getIncome.subscribe(transactions => {
         dataPoints = transactions;
+        this.getExpenses.subscribe(transactions => {
+          for(let i = 0; i < transactions.length; i++){
+            currentExpenses += dataPoints[i].y - transactions[i].y;  
+            dataPoints[i].y = currentExpenses;  
+          }
+          this.netIncomeChart.data.datasets[0].data = dataPoints;
+        });
     });
-    this.getExpenses.subscribe(transactions => {
-      for(let i = 0; i < transactions.length; i++){
-        
-        currentExpenses += dataPoints[i].y - transactions[i].y;  
-        dataPoints[i].y = currentExpenses;  
-      }
-    });
-    this.netIncomeChart.data.datasets[0].data = dataPoints;
+    
+    
+    
   }
 
   setIncomeExpensesChart(){
     
       this.getExpenses.subscribe(transactions => {
-        this.incomeChart.data.datasets[0].data.pop();
+        this.incomeChart.data.datasets[1].data = [];
         for(let i = 0; i < transactions.length; i++){
-          this.incomeChart.data.datasets[0].data.push({x:transactions[i].x, y:transactions[i].y});
+          this.incomeChart.data.datasets[1].data.push({x:transactions[i].x, y:transactions[i].y});
         }
       });
 
       this.getIncome.subscribe(transactions => {
-        this.incomeChart.data.datasets[1].data.pop();
+        this.incomeChart.data.datasets[0].data = [];
         for(let i = 0; i < transactions.length; i++){
-          this.incomeChart.data.datasets[1].data.push({x:transactions[i].x, y:transactions[i].y});
+          this.incomeChart.data.datasets[0].data.push({x:transactions[i].x, y:transactions[i].y});
         }
       });
   }  

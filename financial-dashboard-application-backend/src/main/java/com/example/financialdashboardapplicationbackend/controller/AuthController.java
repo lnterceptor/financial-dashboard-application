@@ -24,7 +24,6 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody AuthDto authDto){
-        System.out.println(authDto);
         if(!authDto.password().equals(authDto.repeatPassword())){
             return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error","Passwords do not match"));
         }

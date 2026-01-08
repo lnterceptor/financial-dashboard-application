@@ -11,6 +11,7 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
+import { Category } from '../../interfaces/transaction';
 
 @Component({
   selector: 'app-transaction-list',
@@ -31,8 +32,8 @@ export class TransactionList {
   addNewTransaction(){
     this.inputValue = '';
     this.dialog.open(AddTransaction, { disableClose: true,
-        data:{id:null, amount:null, category: "0", date:new Date, description: ''},
-        providers:[{provide: MAT_DIALOG_DATA, useValue: {id:null, amount:null, category: "0", date:new Date, description: ''}}]
+        data:{id:null, amount:null, category: Object.values(Category[Category.INCOME]).join(''), date:new Date, description: ''},
+        providers:[{provide: MAT_DIALOG_DATA, useValue: {id:null, amount:null, category:Object.values(Category[Category.INCOME]).join(''), date:new Date, description: ''}}]
     });
     this.dialog.afterAllClosed.pipe(take(1)).subscribe(() => this.refreshTransactions());
   }

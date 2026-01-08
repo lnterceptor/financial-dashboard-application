@@ -1,8 +1,9 @@
 import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, Observable, of, tap } from 'rxjs';
+import { BehaviorSubject, Observable, of, tap, firstValueFrom, from, map } from 'rxjs';
 import { Category, Transaction } from '../interfaces/transaction';
 import { AuthService } from './auth-service';
 import { User } from '../interfaces/user';
+import { HttpClient } from '@angular/common/http';
 
 export interface DataPoint{
   x: string,
@@ -13,12 +14,13 @@ export interface DataPoint{
   providedIn: 'root',
 })
 export class TransactionService {
+  private apiUrl = 'http://localhost:8080/transactions';
   private authService = inject(AuthService);
   private user: User | null = null;
   private userTransactionsSubject = new BehaviorSubject<Transaction[]>([]);
   userTransactions = this.userTransactionsSubject.asObservable();
 
-  constructor(){
+  constructor(private http:HttpClient){
     this.authService.currentUser.subscribe(user =>
     {
       this.user = user;
@@ -26,47 +28,42 @@ export class TransactionService {
     )
   }
 
-  getCurrentBalance():Observable<number>{
-    const currentBalance = 5410.34;
-    return of(currentBalance);
+  getIncome():Observable<number>{
+    return from(this.getIncomeFromBackend())
+  }
+  async getIncomeFromBackend(){
+    let data = 0;
+    try {
+     data = await firstValueFrom(this.http.get<number>(this.apiUrl + '/getIncome/' + this.user!.id));
+    } catch(error){
+      console.error('Failed');
+    }
+     return data;
   }
 
-  getIncome():Observable<number>{
-    const data = this.getIncomeForCharts();
-    let currentBalance = 0;
-    data.subscribe(data => {
-      for(let i = 0; i < data.length; i++){
-        currentBalance += data[i].y;
-      }
-    });
-    return of(currentBalance);
-  }
+  
   getExpenses():Observable<number>{
-    const data = this.getExpensesForCharts();
-    let currentBalance = 0;
-    data.subscribe(data => {
-      for(let i = 0; i < data.length; i++){
-        currentBalance += data[i].y;
-      }
-    });    
-    return of(currentBalance);
+    return from(this.getExpensesFromBackend());
+  }
+
+  async getExpensesFromBackend(){
+    let data = 0;
+    try {
+     data = await firstValueFrom(this.http.get<number>(this.apiUrl + '/getExpenses/' + this.user!.id));
+    } catch(error){
+      console.error('Failed');
+    }
+     return data;
   }
 
   getAllTransactions():Observable<Transaction[]>{
-    if(this.userTransactionsSubject.value.length == 0){
-      this.userTransactionsSubject.next(this.getMockData());
-    }
-    return of(this.userTransactionsSubject.value.sort((a,b) => Number(b.date_of_transaction) - Number(a.date_of_transaction)));
+    return from(this.setData());
   }
 
   getRecentTransactions(amount: number): Observable<Transaction[]>{
-    this.getAllTransactions();
-    let recentTransactions: Transaction[] = [];
-    const amountOfTransactions = amount > this.userTransactionsSubject.value.length ? this.userTransactionsSubject.value.length : amount;
-    
-    recentTransactions = this.userTransactionsSubject.value.sort((a,b)=>Number(b.date_of_transaction) - Number(a.date_of_transaction));
-    recentTransactions = recentTransactions.slice(0, amount);
-    return of(recentTransactions);
+    return this.getAllTransactions().pipe(
+      map((transactions) => {
+        return transactions.slice(0, amount)}));
   }
 
   getSingleTransaction(transaction_id: number){
@@ -75,58 +72,49 @@ export class TransactionService {
         return this.userTransactionsSubject.value[i];
       }
     }
-    return this.userTransactionsSubject.value[0]; //change later on to return some kind of error
+    return this.userTransactionsSubject.value[0];
   }
   
-
-  getMockData(){
-    const transactions: Transaction[] = [
-      {id: 100, amount: 70.00, category: Category.ENTERTAINMENT, user_id: this.user!.id , date_of_transaction:new Date(2025, 3,10), description:'Movie'},
-      {id: 91, amount: 69.99, category: Category.OIL, user_id: this.user!.id , date_of_transaction:new Date(2025, 1,1), description:'Gasoline for next week'},
-      {id: 81, amount: 100.00, category: Category.GROCERIES, user_id: this.user!.id , date_of_transaction:new Date(2025, 2,22), description:''},
-      {id: 75, amount: 220.11, category: Category.FOOD, user_id: this.user!.id , date_of_transaction:new Date(2025, 5,17), description:'Groceries'},
-      {id: 61, amount: 120.19, category: Category.OTHERS, user_id: this.user!.id , date_of_transaction:new Date(2025, 4,16), description:'Movie'},
-      {id: 53, amount: 120.30, category: Category.OTHERS, user_id: this.user!.id , date_of_transaction:new Date(2026, 0,1), description:'Event on Monday'},
-      {id: 42, amount: 120.35, category: Category.OTHERS, user_id: this.user!.id , date_of_transaction:new Date(2025, 8,7), description:'Last Friday'},
-      {id: 30, amount: 120.00, category: Category.INCOME, user_id: this.user!.id , date_of_transaction:new Date(2025, 7,10), description:'From Michael'},
-      {id: 2, amount: 102.43, category: Category.ENTERTAINMENT, user_id: this.user!.id , date_of_transaction:new Date(2026, 0,2), description:'Concert on Friday'},
-      {id: 1, amount: 730.5, category: Category.INCOME, user_id: this.user!.id , date_of_transaction:new Date(2025, 5,11), description:'Income'}
-    ];
-    transactions.sort((a, b) => b.id - a.id);
-  return transactions;
-  }
-
-
-  addNewTransaction(amount:number, category:Category, date:Date, description:string){
-    const transaction : Transaction = {id: (this.getMaxMockId() + 1), amount: amount, category: category, user_id: this.user!.id , date_of_transaction:date, description: description}
-    let transactions :Transaction[]= this.userTransactionsSubject.value;
-    transactions.push(transaction);
-    this.userTransactionsSubject.next(transactions);
-  }
-  
-
-  
-    editTransaction(id:number, amount:number, category:Category, date:Date, description:string){
-    const transaction = this.getSingleTransaction(id);
-
-    transaction.amount = amount;
-    transaction.category = category as Category;
-    transaction.date_of_transaction = date;
-    transaction.description = description;
-    const transactions :Transaction[]= this.userTransactionsSubject.value;
-    
-    transactions[this.returnTransactionPositionInArray(id)] = transaction;
-    this.userTransactionsSubject.next(transactions);
-  }
-
-  getMaxMockId(): number{
-    let maxId = 0;
-    for(let i = 0; i < this.userTransactionsSubject.value.length; i++){
-      if(maxId < this.userTransactionsSubject.value[i].id){
-        maxId = this.userTransactionsSubject.value[i].id
+  async setData(){
+    try {
+     const data = await firstValueFrom(this.http.get<Transaction[]>(this.apiUrl + '/userTransactions/' + this.user!.id));
+     let transactions :Transaction[] = [];
+     for(let i = 0; i < transactions.length; i++){
+      transactions.push({
+        id: data[i].id,
+        amount: data[i].amount,
+        date_of_transaction: new Date(data[i].date_of_transaction),
+        description: data[i].description,
+        category: data[i].category,
+        user_id: data[i].user_id
       }
+      )
+     }
+     const newData = data.sort((a,b) =>Number(b.id) - Number(a.id));
+     this.userTransactionsSubject.next(newData);
+      
+    } catch(error){
+      console.error('Failed');
     }
-    return maxId;
+     return this.userTransactionsSubject.value.sort((a,b) => Number(b.id) - Number(a.id));
+  }
+
+
+  addNewTransaction(amount:number, category:Category, date:Date, description:string): Observable<void>{
+    const transaction =
+    {amount: amount, category: Object.values(Category[category]).join(''), user_id: this.user!.id 
+      , date_of_transaction:date, description: description}
+    return this.http.post<void>(this.apiUrl + '/addTransaction', transaction);
+  }
+
+  
+    editTransaction(id:number, amount:number, category:Category, date:Date, description:string):Observable<void>{
+    
+    const transaction =
+    {id: id, amount: amount, category: Object.values(Category[category]).join(''), user_id: this.user!.id 
+      , date_of_transaction:date, description: description}
+
+    return this.http.post<void>(this.apiUrl + '/editTransaction', transaction);
   }
 
   returnTransactionPositionInArray(id:number) : number{
@@ -137,35 +125,36 @@ export class TransactionService {
     }
     return -1;
   }
+
   filterByPhrase(filterByPhrase: string) : Observable<Transaction[]>{
+    
     let transactions = this.userTransactionsSubject.value.filter(transaction => transaction.amount.toString().includes(filterByPhrase) || 
-    transaction.description.toUpperCase().includes(filterByPhrase.toUpperCase()) || Object.values(Category[transaction.category]).join('').includes(filterByPhrase.toUpperCase())
-    || transaction.date_of_transaction.toString().toUpperCase().includes(filterByPhrase.toUpperCase())
-  );
+      transaction.description.toUpperCase().includes(filterByPhrase.toUpperCase()) || Object.values(Category[Number(Category[transaction.category])]).join('').includes(filterByPhrase.toUpperCase())
+      || transaction.date_of_transaction.toString().toUpperCase().includes(filterByPhrase.toUpperCase())
+    );
     return of(transactions);
   }
 
-  deleteTransaction(id: number){
-    let transactions = this.userTransactionsSubject.value;
-    transactions.splice(transactions.indexOf(this.getSingleTransaction(id)),1);
-    this.userTransactionsSubject.next(transactions);
+  deleteTransaction(id: number) : Observable<void>{
+    return this.http.delete<void>(this.apiUrl + '/deleteTransaction/' + id);
   }
   
 
   getLastYearLabels(){
     const now = new Date();
     const months = [];
-    months.push(new Date(now.getFullYear(), now.getMonth()).toLocaleDateString('en-GB'));
+    months.push(new Date(now.getFullYear(), now.getMonth()).toLocaleDateString('pl-PL'));
     for(let i = 11; i > 0; i--){
       const date = new Date( now.getMonth() - i > 0 ? now.getFullYear(): now.getFullYear() -1, now.getMonth() - i > 0 ? now.getMonth() - i : i );
-      months.push(date.toLocaleDateString('en-GB'));
+      months.push(date.toLocaleDateString('pl-PL'));
     }
     
     months.sort((a,b)=> Number(new Date(a)) - Number(new Date(b)))
     for(let i = 0; i < months.length; i++){
-      months[i] = months[i].slice(3);
+      months[i] = months[i].slice(2).replace('.', '-');
+      months[i] = months[i].split('-')[1] + '-' + months[i].split('-')[0];
     }
-    return months
+    return months;
   }
 
   transformDataOverTimeForCharts(data: Transaction[]) : DataPoint[] {
@@ -176,8 +165,8 @@ export class TransactionService {
       dataPoints.push({x : labels[i],y:0});
     }
     for(let i = 0; i < data.length; i++){
-      const dataIdx = dataPoints.findIndex(value => value.x === data[i].date_of_transaction.toLocaleDateString('en-GB').slice(3));
-
+      const dataIdx = dataPoints.findIndex(value => value.x === data[i].date_of_transaction.toString().slice(0,7));
+      
       if(dataIdx != -1){
         dataPoints[dataIdx].y += data[i].amount;
       }
@@ -185,25 +174,50 @@ export class TransactionService {
     return dataPoints;
   }
 
+  getDataForCharts(wantIncome:boolean) : Observable<DataPoint[]>{
+    return from(this.setData()).pipe(
+      map(() =>{
+        return wantIncome === true ? this.transformDataOverTimeForCharts
+        (this.userTransactionsSubject.value.filter(transaction => Category[transaction.category].toString() === Category.INCOME.toString())) 
+      : this.transformDataOverTimeForCharts
+        (this.userTransactionsSubject.value.filter(transaction => Category[transaction.category].toString() !== Category.INCOME.toString()));  
+    })
+    );
+  }
+
   getExpensesForCharts() : Observable<DataPoint[]>{
     
-    if(this.userTransactionsSubject.value.length == 0){
-      this.userTransactionsSubject.next(this.getMockData());
+    if(this.userTransactionsSubject.value.length === 0){
+      return from(this.getDataForCharts(false))
     }
-    
-    return of(this.transformDataOverTimeForCharts(this.userTransactionsSubject.value.filter(transaction => transaction.category !== Category.INCOME)));
+    return of(this.transformDataOverTimeForCharts(this.userTransactionsSubject.value.filter(transaction => transaction.category.toString() !== Object.values(Category[Category.INCOME]).join(''))));
   }
 
   getIncomeForCharts() : Observable<DataPoint[]>{
-    if(this.userTransactionsSubject.value.length == 0){
-      this.userTransactionsSubject.next(this.getMockData());
+    if(this.userTransactionsSubject.value.length === 0){
+      return from(this.getDataForCharts(true))
     }
-    return of(this.transformDataOverTimeForCharts(this.userTransactionsSubject.value.filter(transaction => transaction.category === Category.INCOME)));
+    return of(this.transformDataOverTimeForCharts(this.userTransactionsSubject.value.filter(transaction =>
+      transaction.category.toString() === Object.values(Category[Category.INCOME]).join(''))));
   }
 
 
   getExpensesToPieChart(): Observable<DataPoint[]>{
     const data :DataPoint[] = [];
+    if(this.userTransactionsSubject.value.length === 0){
+      return from(this.setData()).pipe(
+        map(() => {
+        for(let i = 0; i < Object.values(Category).filter(key => isNaN(Number(key))).length; i++){
+          if(Category[i].toString() !== 'INCOME'){
+            data.push(this.getExpensesByCategory(i));
+          }
+        }
+        return data;
+        }
+      )
+      )
+    }
+
     for(let i = 0; i < Object.values(Category).filter(key => isNaN(Number(key))).length; i++){
       if(Category[i].toString() !== 'INCOME'){
         data.push(this.getExpensesByCategory(i));
@@ -213,10 +227,8 @@ export class TransactionService {
   }
 
   getExpensesByCategory(category: Category): DataPoint{
-    if(this.userTransactionsSubject.value.length == 0){
-      this.userTransactionsSubject.next(this.getMockData());
-    }
-    let data = this.userTransactionsSubject.value.filter(transaction => transaction.category === category);
+    let data = this.userTransactionsSubject.value.filter(transaction => 
+    transaction.category.toString() === Category[category].toString());
     let amount = 0;
     let dataToReturn : DataPoint = {x:'', y:0};
 

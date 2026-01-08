@@ -35,12 +35,12 @@ export class AddTransaction {
   isValid = true;
   displayedAmountError = '';
   displayedDateError = '';
-
+  displayedCategoryError = '';
   categoriesToDisplay: CategoriesToDisplay[] = [];
 
   addTransactionForm = new FormGroup({
-    amount: new FormControl(this.amount(), [Validators.required, Validators.pattern(/^-?\d+(\.\d{1,2})?$/)]),
-    category: new FormControl(this.category()),
+    amount: new FormControl(this.amount(), [Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/)]),
+    category: new FormControl(this.category(), [Validators.required]),
     date: new FormControl(this.date(), [Validators.required]),
     description: new FormControl(this.description())
   })
@@ -56,14 +56,23 @@ export class AddTransaction {
     for(let i = 0; i < amountOfCategories; i++){
       this.categoriesToDisplay.push([Category[i], i]);
     }
-    this.defaultOption =this.category().toString();
+    
+    this.defaultOption = Category[this.category()].toString();
   }
   
 
   sendTransactionToBackend(){
+    
     if(this.addTransactionForm.valid){
+      if(this.addTransactionForm.value.date !== null){
+      this.addTransactionForm.get('date')?.setValue(new Date(
+        new Date(this.addTransactionForm.value.date).getFullYear(),
+        new Date(this.addTransactionForm.value.date).getMonth(),
+        new Date(this.addTransactionForm.value.date).getDate(),
+        13,0,0));
+      }
+
     this.id() == null ? this.addNewTransaction() : this.editTransaction();
-    this.closeModal();
     }
     else{
       this.isValid = false;
@@ -74,6 +83,7 @@ export class AddTransaction {
   checkErrors(){
     this.displayedAmountError = this.containErrors('amount');
     this.displayedDateError = this.containErrors('date');
+    this.displayedCategoryError = this.containErrors('category');
   }
   containErrors(input_to_check: string) : string{
     const contain_errors = this.addTransactionForm.get(input_to_check);
@@ -90,17 +100,29 @@ export class AddTransaction {
 
 
   addNewTransaction(){
-    this.transactionService.addNewTransaction(this.addTransactionForm.get('amount')?.value, Number(this.defaultOption) as Category, this.addTransactionForm.get('date')?.value, this.addTransactionForm.get('description')?.value);
+    this.transactionService.addNewTransaction(this.addTransactionForm.get('amount')?.value, Number(this.defaultOption) as Category, this.addTransactionForm.get('date')?.value, this.addTransactionForm.get('description')?.value)
+    .subscribe({
+      next: () =>  this.closeModal()
+    });
   }
 
   editTransaction(){
-    this.transactionService.editTransaction(this.id(), this.addTransactionForm.get('amount')?.value, Number(this.defaultOption) as Category, this.addTransactionForm.get('date')?.value, this.addTransactionForm.get('description')?.value);
+    //console.log('data - ', this.addTransactionForm.get('date')?.value,' xDD ', this.date().value);
+    this.transactionService.editTransaction(this.id(), this.addTransactionForm.get('amount')?.value, 
+    Number(this.defaultOption) as Category, this.addTransactionForm.get('date')?.value, this.addTransactionForm.get('description')?.value).subscribe(
+      {
+        next: () =>  this.closeModal()
+      }
+    );
   }
 
   deleteTransaction(){
     if(this.id() != null){
-    this.transactionService.deleteTransaction(this.id());
-    this.closeModal();
+    this.transactionService.deleteTransaction(this.id()).subscribe(
+      {
+        next: () => this.closeModal()
+      }
+    );
     }
   }
 
