@@ -10,6 +10,7 @@ import { MatInputModule } from '@angular/material/input';
 import { Dialog } from '@angular/cdk/dialog';
 import { ChangePassword } from '../change-password/change-password';
 import { take } from 'rxjs';
+import { UserService } from '../../services/user-service';
 
 @Component({
   selector: 'app-profile',
@@ -20,6 +21,7 @@ import { take } from 'rxjs';
 export class Profile {
   dialog = inject(Dialog);
   authService = inject(AuthService);
+  userService = inject(UserService);
   user : User | null = null;
   currencies = ['USD', 'EUR', 'PLN', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF'];
   defaultOption = '';
@@ -44,11 +46,13 @@ export class Profile {
   
   
   changeData(){
+    this.isValid = true;
     if(this.profileForm.valid){
-      this.authService.changeUserData(this.profileForm.get('username')?.value ?? '' , this.defaultOption);
-      this.isValid = true;
-      //After connecting backend display error message in here
-
+      this.userService.changeUserData(this.profileForm.get('username')?.value ?? '' , this.profileForm.get('currency')?.value ?? '').subscribe({
+        next: dataChanged => this.showPopup(dataChanged)
+    })
+      
+      //After connecting backend display message that operation is done in here
     }
     else{
       this.isValid = false;
@@ -64,5 +68,10 @@ export class Profile {
   changePassword(){
     this.dialog.open(ChangePassword, {disableClose: true});
     return null;
+  }
+
+  showPopup(isValid: boolean){
+    //implement showing popups
+    return true;
   }
 }

@@ -1,6 +1,7 @@
 package com.example.financialdashboardapplicationbackend.service;
 
 import com.example.financialdashboardapplicationbackend.model.AuthDto;
+import com.example.financialdashboardapplicationbackend.model.PasswordDto;
 import com.example.financialdashboardapplicationbackend.model.User;
 import com.example.financialdashboardapplicationbackend.model.UserDto;
 import com.example.financialdashboardapplicationbackend.repository.UserRepository;
@@ -68,4 +69,36 @@ public class UserService {
         }
         return user == null ? null : user.getPassword().equals(password) ? user : null;
     }
+
+    public User changeUserData(UserDto userDto){
+        User user = userRepository.findById(userDto.id()).orElse(null);
+        User isUsernameTaken = userRepository.findByUsername(userDto.username()).orElse(null);
+        if(user == null || (isUsernameTaken != null && !isUsernameTaken.equals(user) && isUsernameTaken.getUsername().equals(user.getUsername()))){
+            return null;
+        }
+        user.setUpdatedAt(new Date());
+        user.setUsername(userDto.username());
+        user.setCurrency(userDto.currency());
+        userRepository.save(user);
+        return user;
+    }
+
+    public boolean changeUserPassword(PasswordDto passwordDto){
+        User user = userRepository.findById(passwordDto.userId()).orElse(null);
+        if(!passwordDto.password().equals(passwordDto.repeatPassword()) || passwordDto.password().length() < 8 || user == null){
+            return false;
+        }
+
+        try {
+            String hash = java.util.HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(passwordDto.password().getBytes())).toLowerCase();
+            user.setPassword(hash);
+            userRepository.save(user);
+
+        }catch (Exception e){
+            System.out.println(e);
+            return false;
+        }
+        return true;
+    }
+
 }

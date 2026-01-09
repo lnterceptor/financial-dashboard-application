@@ -7,6 +7,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { DialogRef } from '@angular/cdk/dialog';
+import { UserService } from '../../services/user-service';
 @Component({
   selector: 'app-change-password',
   imports: [MatFormField, MatLabel, FormsModule, MatAnchor, ReactiveFormsModule, MatSelectModule, MatFormFieldModule, MatInputModule],
@@ -20,7 +21,7 @@ export class ChangePassword {
   private dialogueRef = inject(DialogRef);
   private authService = inject(AuthService);
   private passwordMinLength = 8;
-
+  private userService = inject(UserService);
   changePasswordForm = new FormGroup({
     password: new FormControl('', [Validators.required, Validators.minLength(this.passwordMinLength)]),
     repeatPassword: new FormControl('', [Validators.required])    
@@ -32,9 +33,15 @@ export class ChangePassword {
   changePassword(){
     if(this.changePasswordForm.valid && this.changePasswordForm.get('password')?.value === this.changePasswordForm.get('repeatPassword')?.value){
       this.isValid = true;
-      this.authService.changePassword(this.changePasswordForm.get('password')?.value ?? '');
-      //possible additional validations
-      this.dialogueRef.close();
+      this.userService.changePassword(this.changePasswordForm.get('password')?.value??"", this.changePasswordForm.get('repeatPassword')?.value??"").subscribe(
+        {
+          next: data =>{
+                //additional validations, don't close on error etc.
+                this.dialogueRef.close();
+          }
+        }
+      )
+      
     }
     else{
       this.isValid = false;

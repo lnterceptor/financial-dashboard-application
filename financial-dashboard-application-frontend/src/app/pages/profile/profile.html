@@ -12,7 +12,7 @@
             </mat-form-field>
             <mat-form-field>
             <mat-label class="input-field">Choose a currency:</mat-label>
-            <mat-select [(value)]="defaultOption">
+            <mat-select [(value)]="defaultOption" formControlName="currency">
                 @for (currency of currencies; track $index) {
                     <mat-option value={{currency}}>{{currency}}</mat-option>
             }
