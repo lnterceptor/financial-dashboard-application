@@ -16,7 +16,12 @@ import java.util.Date;
 public class Transaction {
     @Id
     @Column(nullable = false)
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "transactions_id_seq")
+    @SequenceGenerator(
+            name = "transactions_id_seq",
+            sequenceName = "transactions_id_seq",
+            allocationSize = 1
+    )
     private Long id;
 
     @Column(nullable = false)

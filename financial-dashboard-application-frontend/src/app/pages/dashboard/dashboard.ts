@@ -1,18 +1,15 @@
 import { Component, inject } from '@angular/core';
 import { AuthService } from '../../services/auth-service';
-import { Router } from '@angular/router';
 import { TransactionService } from '../../services/transaction-service';
 import { combineLatest, Observable, map } from 'rxjs';
 import { Category, Transaction } from '../../interfaces/transaction';
-import { toObservable } from '@angular/core/rxjs-interop';
 import {AsyncPipe} from '@angular/common'
 import { TransactionListElement } from '../../components/transaction-list-element/transaction-list-element';
 import { CurrencyPipe } from '@angular/common';
-import { Dialog } from '@angular/cdk/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { AddTransaction } from '../add-transaction/add-transaction';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { take } from 'rxjs';
 import { User } from '../../interfaces/user';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-dashboard',
@@ -20,10 +17,11 @@ import { User } from '../../interfaces/user';
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
 })
+
 export class Dashboard {
   private authService = inject(AuthService);
   private transactionService = inject(TransactionService);
-  private dialog = inject(Dialog);
+  private dialog = inject(MatDialog);
   private amountOfShownTransactions = 5;
   user : User | null = null;
 
@@ -32,7 +30,7 @@ export class Dashboard {
   netIncome!:Observable<number>;
   transactions!:Observable<Transaction[]>;
 
-  constructor(){
+  constructor(public snackBar: MatSnackBar){
     this.authService.currentUser.subscribe(
       user => this.user = user
     )
@@ -50,23 +48,28 @@ export class Dashboard {
 
   editItem(id: number){
     const dataForModal = this.transactionService.getSingleTransaction(id);
-    this.dialog.open(AddTransaction, {disableClose: true, 
-      data:{id:id, amount:dataForModal.amount, category: dataForModal.category, date:dataForModal.date_of_transaction, description: dataForModal.description},
-      providers:[{provide: MAT_DIALOG_DATA, useValue: {id:id, amount:dataForModal.amount, category: dataForModal.category, date:dataForModal.date_of_transaction, description: dataForModal.description}}]
+    const dialogRef = this.dialog.open(AddTransaction, {disableClose: true, 
+      data:{id:id, amount:dataForModal.amount, category: dataForModal.category, date:dataForModal.date_of_transaction, description: dataForModal.description}
     });
-    this.dialog.afterAllClosed.pipe(take(1)).subscribe(() => {
-      this.refreshTransactions();
-    });
+    dialogRef.afterClosed().subscribe(
+      data => {
+        this.showPopup(data);
+        this.refreshTransactions();
+      });
+ 
   }
 
   addNewTransaction(){
-    this.dialog.open(AddTransaction, {disableClose: true,
-      data:{id:null, amount:null, category: Object.values(Category[Category.INCOME]).join(''), date:new Date, description: ''},
-      providers:[{provide: MAT_DIALOG_DATA, useValue: {id:null, amount:null, category: Object.values(Category[Category.INCOME]).join(''), date:new Date, description: ''}}]
+    const dialogRef = this.dialog.open(AddTransaction, {disableClose: true,
+      data:{id:null, amount:null, category: Object.values(Category[Category.INCOME]).join(''), date:new Date, description: ''}
     });
-    this.dialog.afterAllClosed.pipe(take(1)).subscribe(() => {
-      this.refreshTransactions();
-    });
+    dialogRef.afterClosed().subscribe(
+      data => {
+        this.showPopup(data);
+        this.refreshTransactions();
+
+      }
+    );
   }
 
   refreshTransactions(){
@@ -77,4 +80,12 @@ export class Dashboard {
       map(([income, expenses]) => income - expenses)
     )
   }
+
+  showPopup(data: string){
+    if(data !== ''){
+      this.snackBar.open(data, '', {duration: 2000,horizontalPosition: 'right', verticalPosition: 'top' , panelClass: ['snackbar']});
+    }
+    return true;
+  }
+  
 }

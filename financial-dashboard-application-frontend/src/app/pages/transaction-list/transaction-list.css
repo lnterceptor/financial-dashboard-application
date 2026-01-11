@@ -20,3 +20,7 @@
     font-size: 40px;
     border-radius: 15px;
 }
+
+::ng-deep .snackbar {
+  background-color: rgb(73, 201, 61);
+}

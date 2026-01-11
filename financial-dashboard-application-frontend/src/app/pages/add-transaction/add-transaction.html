@@ -39,9 +39,9 @@
     <button matButton="outlined" class="button-accept"  type="submit">Confirm</button>
     <div button-row-second-part>
     @if(this.id() != null){
-        <button matButton="outlined" class="button-delete" (click)="deleteTransaction()">delete</button>
+        <button matButton="outlined" class="button-delete" type="button" (click)="deleteTransaction()">delete</button>
     }
-        <button matButton="outlined" class="button-cancel" (click)="closeModal()">cancel</button>
+        <button matButton="outlined" class="button-cancel" type="button" (click)="closeModal('')">cancel</button>
         </div>    
     </div>
 

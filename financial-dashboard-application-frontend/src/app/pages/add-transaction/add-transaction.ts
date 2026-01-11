@@ -6,10 +6,10 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { MatDatepickerModule} from '@angular/material/datepicker'
 import { provideNativeDateAdapter  } from '@angular/material/core';
 import { MatInputModule } from '@angular/material/input';
-import { DialogRef } from '@angular/cdk/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 
 type CategoriesToDisplay = [string, number];
@@ -30,13 +30,14 @@ export class AddTransaction {
   category = signal(this.data.category);
   date = signal(this.data.date);
   description = signal(this.data.description);
-  private dialogueRef = inject(DialogRef);
+  private dialogueRef = inject(MatDialogRef);
   defaultOption = "0";
   isValid = true;
   displayedAmountError = '';
   displayedDateError = '';
   displayedCategoryError = '';
   categoriesToDisplay: CategoriesToDisplay[] = [];
+
 
   addTransactionForm = new FormGroup({
     amount: new FormControl(this.amount(), [Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/)]),
@@ -45,7 +46,7 @@ export class AddTransaction {
     description: new FormControl(this.description())
   })
 
-  constructor(){
+  constructor(public snackBar: MatSnackBar){
     this.setSelectableCategories();
     
   }
@@ -62,7 +63,6 @@ export class AddTransaction {
   
 
   sendTransactionToBackend(){
-    
     if(this.addTransactionForm.valid){
       if(this.addTransactionForm.value.date !== null){
       this.addTransactionForm.get('date')?.setValue(new Date(
@@ -102,16 +102,18 @@ export class AddTransaction {
   addNewTransaction(){
     this.transactionService.addNewTransaction(this.addTransactionForm.get('amount')?.value, Number(this.defaultOption) as Category, this.addTransactionForm.get('date')?.value, this.addTransactionForm.get('description')?.value)
     .subscribe({
-      next: () =>  this.closeModal()
+      next: () =>  this.closeModal('Added new transaction.'),
+      error: () => this.showPopup()
+            
     });
   }
 
   editTransaction(){
-    //console.log('data - ', this.addTransactionForm.get('date')?.value,' xDD ', this.date().value);
     this.transactionService.editTransaction(this.id(), this.addTransactionForm.get('amount')?.value, 
     Number(this.defaultOption) as Category, this.addTransactionForm.get('date')?.value, this.addTransactionForm.get('description')?.value).subscribe(
       {
-        next: () =>  this.closeModal()
+        next: () =>  this.closeModal('Succesfully editted transaction'),
+        error: () => this.showPopup()
       }
     );
   }
@@ -120,14 +122,22 @@ export class AddTransaction {
     if(this.id() != null){
     this.transactionService.deleteTransaction(this.id()).subscribe(
       {
-        next: () => this.closeModal()
+        next: () => this.closeModal('Succesfully deleted transaction'),
+        error:() => this.showPopup()
       }
     );
     }
   }
 
-  closeModal(){
-    this.dialogueRef.close();
+  showPopup(){
+    const message = 'Unknown error appeared!';
+    this.snackBar.open(message, '', {duration: 2000,horizontalPosition: 'right', verticalPosition: 'top' , panelClass: ['snackbar']});
+    return true;
+  }
+
+  closeModal(data: string){
+    console.log(data, ' :close');
+    this.dialogueRef.close(data);
   }
 
 }

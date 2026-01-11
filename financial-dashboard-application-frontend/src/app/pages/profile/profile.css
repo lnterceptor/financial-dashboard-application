@@ -47,5 +47,9 @@
     border-top: 3px solid transparent;
 }
 .error{
-    color: red;
+    color: red !important;
+}
+
+::ng-deep .snackbar {
+  background-color: rgb(73, 201, 61);
 }

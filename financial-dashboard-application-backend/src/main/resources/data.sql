@@ -55,3 +55,5 @@ insert into transactions (id, user_id, amount, created_at, updated_at, category,
     (55, 1, 275, to_timestamp('2026/01/02 11:15', 'YYYY/MM/DD hh:mi'), to_timestamp('2026/01/02 11:15', 'YYYY/MM/DD hh:mi')
     , 'ENTERTAINMENT', to_timestamp('2026/01/02 11:15', 'YYYY/MM/DD hh:mi'), 'New year party') on CONFLICT DO NOTHING;
 
+SELECT setval('user_id_seq', (SELECT COALESCE(MAX(id), 0) FROM users));
+select setval('transactions_id_seq', (SELECT COALESCE(MAX(id), 0)  FROM transactions));

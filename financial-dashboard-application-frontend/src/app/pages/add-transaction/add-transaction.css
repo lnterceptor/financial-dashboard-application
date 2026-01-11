@@ -56,3 +56,6 @@
 ::ng-deep .mat-mdc-select-panel{
     background-color: white !important;
 }
+::ng-deep .snackbar {
+  background-color: blanchedalmond;
+}
