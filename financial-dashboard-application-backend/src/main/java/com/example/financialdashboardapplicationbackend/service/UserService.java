@@ -92,6 +92,7 @@ public class UserService {
         try {
             String hash = java.util.HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(passwordDto.password().getBytes())).toLowerCase();
             user.setPassword(hash);
+            user.setUpdatedAt(new Date());
             userRepository.save(user);
 
         }catch (Exception e){

@@ -90,13 +90,12 @@ export class TransactionService {
       }
       )
      }
-     const newData = data.sort((a,b) =>Number(b.id) - Number(a.id));
+     const newData = data.sort((a,b) =>Number(new Date(b.date_of_transaction)) - Number(new Date(a.date_of_transaction)));
      this.userTransactionsSubject.next(newData);
-      
     } catch(error){
       console.error('Failed');
     }
-     return this.userTransactionsSubject.value.sort((a,b) => Number(b.id) - Number(a.id));
+     return this.userTransactionsSubject.value.sort((a,b) => Number(new Date(b.date_of_transaction)) - Number(new Date(a.date_of_transaction)));
   }
 
 

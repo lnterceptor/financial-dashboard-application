@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.util.Date;
 
@@ -28,8 +29,8 @@ public class Transaction {
     @Column(updatable = false, name = "created_at")
     private Date createdAt;
 
-    @CreationTimestamp
-    @Column(updatable = false, name = "updated_at")
+    @UpdateTimestamp
+    @Column(name = "updated_at")
     private Date updatedAt;
 
     @Column(nullable = false)
