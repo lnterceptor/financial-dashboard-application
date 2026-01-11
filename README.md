@@ -11,8 +11,8 @@
 - Sample data for demo
 
 ## Tech Stack
-- **Frontend:** Angular 18
-- **Backend:** Spring Boot 3.2
+- **Frontend:** Angular
+- **Backend:** Spring Boot
 - **Database:** PostgreSQL (Docker)
 
 ## Project Structure
